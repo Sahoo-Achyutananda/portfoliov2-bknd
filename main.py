@@ -6,7 +6,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from data import certificates_to_cards, experience_to_cards, projects_to_cards
+from data import (
+    awards_to_cards,
+    certificates_to_cards,
+    experience_to_cards,
+    get_profile,
+    projects_to_cards,
+)
 
 app = FastAPI()
 
@@ -64,6 +70,45 @@ def chat(payload: ChatRequest):
             reply="Here are some of my projects:",
             cards=projects_to_cards(),
         )
+    if any(k in message_lower for k in ("award", "achievement")):
+        return ChatResponse(
+            reply="Here are some of my awards and achievements:",
+            cards=awards_to_cards(),
+        )
+
+    if any(k in message_lower for k in ("contact", "email", "reach you")):
+        profile = get_profile()
+        return ChatResponse(
+            reply=(
+                f"You can reach me at {profile['email']}, connect on LinkedIn: "
+                f"{profile['linkedin']}, or check out {profile['website']}"
+            )
+        )
+    if any(k in message_lower for k in ("tech stack", "skills", "technologies")):
+        profile = get_profile()
+        skills = profile["skills"]
+        return ChatResponse(
+            reply=(
+                f"Languages: {', '.join(skills['languages'])}. "
+                f"ML/AI: {', '.join(skills['mlAi'])}. "
+                f"Backend: {', '.join(skills['backend'])}. "
+                f"Tools: {', '.join(skills['tools'])}."
+            )
+        )
+    if "how old" in message_lower or "your age" in message_lower:
+        profile = get_profile()
+        return ChatResponse(reply=f"I'm {profile['age']} years old.")
+    if any(k in message_lower for k in ("studying", "study", "education", "degree")):
+        profile = get_profile()
+        return ChatResponse(reply=f"{profile['currentStatus']}.")
+    if any(k in message_lower for k in ("doing now", "currently doing", "up to", "what are you")):
+        profile = get_profile()
+        return ChatResponse(
+            reply=f"{profile['currentStatus']}. Most recently: {profile['mostRecentRole']}."
+        )
+    if any(k in message_lower for k in ("about you", "who are you", "tell me about")):
+        profile = get_profile()
+        return ChatResponse(reply=profile["summary"])
 
     return ChatResponse(
         reply=f'This is a dummy response. You asked: "{payload.message}"'

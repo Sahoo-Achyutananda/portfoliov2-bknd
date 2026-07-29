@@ -5,17 +5,103 @@ matcher uses today, and what the LangGraph agent's tools will read from
 once it exists (see README.md "Implementation Order").
 """
 
+from datetime import date
+
+DOB = date(2002, 2, 23)
+
+
+def get_age() -> int:
+    today = date.today()
+    years = today.year - DOB.year
+    if (today.month, today.day) < (DOB.month, DOB.day):
+        years -= 1
+    return years
+
+
+PROFILE = {
+    "name": "Achyutananda Sahoo",
+    "email": "sahoo.official.work@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/achyutananda-sahoo",
+    "website": "https://iamsahoo.netlify.app",
+    "location": "Kendujhar, Odisha, India",
+    "currentStatus": "Pursuing an M.Tech in Computer Science and Information Security (CSIS) at IIIT-Hyderabad",
+    "mostRecentRole": "Technology Program Intern at Wells Fargo International, Hyderabad (May 2026 - Jul 2026)",
+    "education": [
+        {
+            "institution": "International Institute of Information Technology, Hyderabad (IIIT-H)",
+            "degree": "M.Tech, Computer Science and Information Security",
+            "period": "2025 - present",
+        },
+        {
+            "institution": "Saveetha School of Engineering, Chennai",
+            "degree": "B.E., Computer Science and Engineering",
+            "period": "2020 - 2024",
+            "honors": "CGPA 9.44/10, 1st rank (2nd-4th yr), Best Outgoing Student 2024",
+        },
+    ],
+    "skills": {
+        "languages": ["C/C++", "Python", "TypeScript", "JavaScript"],
+        "mlAi": [
+            "Google ADK",
+        ],
+        "backend": ["Node.js", "PostgreSQL", "pgvector", "FastAPI"],
+        "tools": ["Git", "GitHub", "VS Code", "Postman"],
+    },
+    "summary": (
+        "Software engineer pursuing an M.Tech in CSIS at IIIT-Hyderabad (GATE CS 2025 AIR "
+        "1814). Most recently built an autonomous agentic AI system at Wells Fargo using "
+        "Google ADK, LangChain, and LangGraph to digitize a manual banking workflow, cutting "
+        "turnaround time from hours to minutes. Also works across ML (FAISS, "
+        "sentence-transformers), backend (Python, TypeScript, PostgreSQL), and occasionally "
+        "freelances as a graphic designer."
+    ),
+}
+
+
+def get_profile() -> dict:
+    return {**PROFILE, "age": get_age()}
+
+
 PROJECTS = [
     {
-        "title": "SORT IT OUT - The Baby Version",
-        "tech": "HTML, CSS, JavaScript",
-        "description": "Visualizes classic sorting algorithms using raw HTML, CSS, and vanilla JavaScript.",
-        "github": "https://github.com/Sahoo-Achyutananda/Sorting_Algorithm_Visualizer",
-        "demo": "https://sorting-visualizer-achyutananda-sahoo.netlify.app/index.html",
-        "thumbnail": "/projects/sortv1.png",
+        "title": "mygit - Git Implementation from Scratch with RAG",
+        "tech": "TypeScript, Node.js, PostgreSQL, pgvector, OpenAI API",
+        "description": (
+            "Implementing Git's core object model (blob/tree/commit) with SHA-1 "
+            "content-addressed storage and zlib compression, including a staging area, refs, "
+            "and 7 core commands. Building push/pull/clone over a custom JSON/HTTP protocol "
+            "with compare-and-swap for non-fast-forward rejection. Planning a RAG pipeline to "
+            "embed code blobs on push and answer natural-language codebase questions via "
+            "pgvector similarity search and GPT-4o synthesis."
+        ),
+        "github": "https://github.com/Sahoo-Achyutananda/mygit",
+        "demo": None,
+        "thumbnail": None,
     },
     {
-        "title": "SORT IT OUT - React Version",
+        "title": "Personalised Indian Recipe Recommender",
+        "tech": "Python, Sentence-Transformers, FAISS, Streamlit",
+        "description": (
+            "A content-based recommender over 6,865 Indian recipes using sentence-transformer "
+            "embeddings (all-MiniLM-L6-v2) and FAISS-accelerated cosine similarity search. A "
+            "hybrid semantic + keyword scoring formula fixes ingredient-dilution issues; FAISS "
+            "reduced query latency from 18ms to under 1ms. Shipped as a multi-page Streamlit "
+            "app with live parameter tuning, favourites, and explainable recommendations."
+        ),
+        "github": None,
+        "demo": None,
+        "thumbnail": None,
+    },
+    {
+        "title": "Mini POSIX Shell",
+        "tech": "C++, STL",
+        "description": "A terminal REPL supporting commands (cd, ls, echo, pinfo), I/O redirection, and pipelining.",
+        "github": None,
+        "demo": None,
+        "thumbnail": None,
+    },
+    {
+        "title": "SORT IT OUT",
         "tech": "React, Tailwind CSS, Vite",
         "description": "A React + Tailwind sorting visualizer with a Race Mode (algorithms compete in real-time) and Play Mode.",
         "github": "https://github.com/Sahoo-Achyutananda/sort_it_out_v4",
@@ -31,17 +117,15 @@ PROJECTS = [
         "thumbnail": "/projects/snake.png",
     },
     {
-        "title": "2 Colors",
-        "tech": "HTML, CSS, JavaScript",
-        "description": "Generates 2 random colors per refresh with hex/RGB values and linear/conic/radial gradients.",
-        "github": "https://github.com/Sahoo-Achyutananda/2_Colors",
-        "demo": "https://sahoo-achyutananda.github.io/2_Colors/",
-        "thumbnail": "/projects/2colors.png",
-    },
-    {
-        "title": "Detection of Customer Churn in the Banking Sector",
-        "tech": "Python",
-        "description": "ML model comparing XGBoost, Random Forest, SVM, Decision Tree, and Logistic Regression for churn prediction.",
+        "title": "Customer Churn Prediction in Banking Sector",
+        "tech": "Python, Scikit-learn, XGBoost, Pandas",
+        "description": (
+            "Built and benchmarked ML models for churn prediction with Target Driven Encoding "
+            "on categorical features. Random Forest achieved 86.14% accuracy, outperforming "
+            "XGBoost (85.25%), SVM (79.81%), Logistic Regression (79.81%), and Decision Tree "
+            "(78.62%). Validated with independent-sample T-tests (p=0.001) across 30 "
+            "randomized train-test splits."
+        ),
         "github": None,
         "demo": None,
         "thumbnail": None,
@@ -50,14 +134,23 @@ PROJECTS = [
 
 EXPERIENCE = [
     {
+        "title": "Technology Program Intern - Wells Fargo International",
+        "duration": "May 2026 - Jul 2026",
+        "location": "Hyderabad, India",
+        "highlights": [
+            "Built an autonomous Agentic AI system (Google ADK, LangChain, LangGraph) to digitize a manual banking inquiry workflow",
+            "Reduced turnaround time from 2-8 hours to 20 minutes",
+        ],
+    },
+    {
         "title": "Software Engineer Intern - Ciranta IT Services (formerly Aspirant Labs)",
         "duration": "Oct 2023 - Apr 2024",
         "location": "Chennai, India",
         "highlights": [
-            "Customized Odoo ERP systems for clients",
-            "Built custom modules like Appraisal System and Employee Portal",
-            "Integrated APIs and customized CRM, Sales, and Marketing modules",
-            "Received Rising Star Award",
+            "Developed and customized Odoo ERP modules across HR, CRM, and marketing domains",
+            "Built an Employee Portal for attendance tracking, replacing a third-party tool (100% internal adoption)",
+            "Designed a Custom Appraisal System to digitize manual processes",
+            "Integrated Zoom API and exposed custom REST APIs for Odoo module data",
         ],
     },
     {
@@ -96,6 +189,13 @@ CERTIFICATES = [
     {"src": "/certs/Picture6.png", "title": "Rising STAR Award - Ciranta IT Services"},
     {"src": "/certs/Picture7.jpg", "title": "Third Year College Topper"},
     {"src": "/certs/Picture8.jpg", "title": "Second Year College Topper"},
+]
+
+AWARDS = [
+    {"title": "GATE CS 2025", "description": "AIR 1814 (98.94 percentile)"},
+    {"title": "PGEE", "description": "Rank 150"},
+    {"title": "Rising Star Award", "description": "Ciranta IT Services (2023)"},
+    {"title": "800+ DSA Problems", "description": "Solved across LeetCode & GeeksforGeeks"},
 ]
 
 
@@ -145,4 +245,18 @@ def certificates_to_cards() -> list[dict]:
             "image": c["src"],
         }
         for c in CERTIFICATES
+    ]
+
+
+def awards_to_cards() -> list[dict]:
+    return [
+        {
+            "title": a["title"],
+            "subtitle": None,
+            "description": a["description"],
+            "link": None,
+            "linkLabel": None,
+            "image": None,
+        }
+        for a in AWARDS
     ]
