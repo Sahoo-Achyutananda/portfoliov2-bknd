@@ -1,18 +1,15 @@
-import json
-import re
-
-import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from langchain_core.messages import ToolMessage
 from pydantic import BaseModel
 
-from data import (
-    awards_to_cards,
-    certificates_to_cards,
-    experience_to_cards,
-    get_profile,
-    projects_to_cards,
-)
+load_dotenv()
+
+from agent import agent
+from stats import StatsNotFoundError, StatsUnavailableError, fetch_github_stats, fetch_leetcode_stats
+
+CARD_TOOL_NAMES = {"get_projects", "get_experience", "get_certificates", "get_awards"}
 
 app = FastAPI()
 
@@ -48,102 +45,35 @@ def health():
     return {"status": "ok"}
 
 
+def _extract_text(content) -> str:
+    """Gemini sometimes returns message.content as a list of content blocks
+    instead of a plain string; pull just the text parts out either way."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "".join(
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
+    return str(content)
+
+
 @app.post("/chat", response_model=ChatResponse)
-def chat(payload: ChatRequest):
-    # Keyword-based stand-in until the real LangGraph agent exists (see
-    # README.md "Implementation Order"). Same card builders in data.py will
-    # back the agent's tools later, so this isn't throwaway.
-    message_lower = payload.message.lower()
+async def chat(payload: ChatRequest):
+    result = await agent.ainvoke({"messages": [{"role": "user", "content": payload.message}]})
+    print("-------------",result)
+    messages = result["messages"]
 
-    if "certificate" in message_lower or "certification" in message_lower:
-        return ChatResponse(
-            reply="Here are some of my certificates:",
-            cards=certificates_to_cards(),
-        )
-    if "experience" in message_lower or "intern" in message_lower or "work" in message_lower:
-        return ChatResponse(
-            reply="Here's my work experience:",
-            cards=experience_to_cards(),
-        )
-    if "project" in message_lower:
-        return ChatResponse(
-            reply="Here are some of my projects:",
-            cards=projects_to_cards(),
-        )
-    if any(k in message_lower for k in ("award", "achievement")):
-        return ChatResponse(
-            reply="Here are some of my awards and achievements:",
-            cards=awards_to_cards(),
-        )
+    reply = _extract_text(messages[-1].content)
 
-    if any(k in message_lower for k in ("contact", "email", "reach you")):
-        profile = get_profile()
-        return ChatResponse(
-            reply=(
-                f"You can reach me at {profile['email']}, connect on LinkedIn: "
-                f"{profile['linkedin']}, or check out {profile['website']}"
-            )
-        )
-    if any(k in message_lower for k in ("tech stack", "skills", "technologies")):
-        profile = get_profile()
-        skills = profile["skills"]
-        return ChatResponse(
-            reply=(
-                f"Languages: {', '.join(skills['languages'])}. "
-                f"ML/AI: {', '.join(skills['mlAi'])}. "
-                f"Backend: {', '.join(skills['backend'])}. "
-                f"Tools: {', '.join(skills['tools'])}."
-            )
-        )
-    if "how old" in message_lower or "your age" in message_lower:
-        profile = get_profile()
-        return ChatResponse(reply=f"I'm {profile['age']} years old.")
-    if any(k in message_lower for k in ("studying", "study", "education", "degree")):
-        profile = get_profile()
-        return ChatResponse(reply=f"{profile['currentStatus']}.")
-    if any(k in message_lower for k in ("doing now", "currently doing", "up to", "what are you")):
-        profile = get_profile()
-        return ChatResponse(
-            reply=f"{profile['currentStatus']}. Most recently: {profile['mostRecentRole']}."
-        )
-    if any(k in message_lower for k in ("about you", "who are you", "tell me about")):
-        profile = get_profile()
-        return ChatResponse(reply=profile["summary"])
+    cards = None
+    for message in reversed(messages):
+        if isinstance(message, ToolMessage) and message.name in CARD_TOOL_NAMES:
+            cards = message.artifact
+            break
 
-    return ChatResponse(
-        reply=f'This is a dummy response. You asked: "{payload.message}"'
-    )
-
-
-LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
-LEETCODE_HEADERS = {
-    "Content-Type": "application/json",
-    "Referer": "https://leetcode.com",
-    "User-Agent": "Mozilla/5.0",
-}
-
-LEETCODE_STATS_QUERY = """
-query userStats($username: String!) {
-  allQuestionsCount {
-    difficulty
-    count
-  }
-  matchedUser(username: $username) {
-    username
-    submitStatsGlobal {
-      acSubmissionNum {
-        difficulty
-        count
-      }
-    }
-    userCalendar {
-      streak
-      totalActiveDays
-      submissionCalendar
-    }
-  }
-}
-"""
+    return ChatResponse(reply=reply, cards=cards)
 
 
 class LeetCodeStats(BaseModel):
@@ -162,60 +92,13 @@ class LeetCodeStats(BaseModel):
 
 @app.get("/leetcode/stats", response_model=LeetCodeStats)
 async def leetcode_stats(username: str = "achyutananda_sahoo"):
-    async with httpx.AsyncClient(timeout=10) as client:
-        try:
-            res = await client.post(
-                LEETCODE_GRAPHQL_URL,
-                headers=LEETCODE_HEADERS,
-                json={
-                    "query": LEETCODE_STATS_QUERY,
-                    "variables": {"username": username},
-                },
-            )
-            res.raise_for_status()
-            payload = res.json()
-        except httpx.HTTPError as exc:
-            raise HTTPException(
-                status_code=502, detail="Failed to reach LeetCode"
-            ) from exc
-
-    matched_user = payload.get("data", {}).get("matchedUser")
-    if matched_user is None:
-        raise HTTPException(
-            status_code=404, detail=f"LeetCode user '{username}' not found"
-        )
-
-    counts = {
-        entry["difficulty"]: entry["count"]
-        for entry in matched_user["submitStatsGlobal"]["acSubmissionNum"]
-    }
-    totals = {
-        entry["difficulty"]: entry["count"]
-        for entry in payload.get("data", {}).get("allQuestionsCount", [])
-    }
-    calendar_raw = matched_user["userCalendar"]["submissionCalendar"] or "{}"
-    submission_calendar = json.loads(calendar_raw)
-
-    return LeetCodeStats(
-        username=matched_user["username"],
-        totalSolved=counts.get("All", 0),
-        easySolved=counts.get("Easy", 0),
-        mediumSolved=counts.get("Medium", 0),
-        hardSolved=counts.get("Hard", 0),
-        easyTotal=totals.get("Easy", 0),
-        mediumTotal=totals.get("Medium", 0),
-        hardTotal=totals.get("Hard", 0),
-        totalActiveDays=matched_user["userCalendar"]["totalActiveDays"],
-        streak=matched_user["userCalendar"]["streak"],
-        submissionCalendar=submission_calendar,
-    )
-
-
-GITHUB_HEADERS = {"User-Agent": "Mozilla/5.0"}
-
-CONTRIB_DAY_RE = re.compile(r'<td\b[^>]*\bclass="ContributionCalendar-day"[^>]*>')
-DATE_RE = re.compile(r'data-date="([\d-]+)"')
-LEVEL_RE = re.compile(r'data-level="(\d+)"')
+    try:
+        data = await fetch_leetcode_stats(username)
+    except StatsNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except StatsUnavailableError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return LeetCodeStats(**data)
 
 
 class GitHubStats(BaseModel):
@@ -229,46 +112,10 @@ class GitHubStats(BaseModel):
 
 @app.get("/github/stats", response_model=GitHubStats)
 async def github_stats(username: str = "Sahoo-Achyutananda"):
-    async with httpx.AsyncClient(timeout=10, headers=GITHUB_HEADERS) as client:
-        try:
-            profile_res = await client.get(f"https://api.github.com/users/{username}")
-            repos_res = await client.get(
-                f"https://api.github.com/users/{username}/repos",
-                params={"per_page": 100},
-            )
-            contrib_res = await client.get(
-                f"https://github.com/users/{username}/contributions"
-            )
-        except httpx.HTTPError as exc:
-            raise HTTPException(
-                status_code=502, detail="Failed to reach GitHub"
-            ) from exc
-
-    if profile_res.status_code == 404:
-        raise HTTPException(
-            status_code=404, detail=f"GitHub user '{username}' not found"
-        )
-    if not profile_res.is_success or not repos_res.is_success or not contrib_res.is_success:
-        raise HTTPException(status_code=502, detail="Failed to reach GitHub")
-
-    profile = profile_res.json()
-    repos = repos_res.json()
-    total_stars = sum(
-        repo.get("stargazers_count", 0) for repo in repos if isinstance(repo, dict)
-    )
-
-    calendar: dict[str, int] = {}
-    for td in CONTRIB_DAY_RE.findall(contrib_res.text):
-        date_match = DATE_RE.search(td)
-        level_match = LEVEL_RE.search(td)
-        if date_match and level_match:
-            calendar[date_match.group(1)] = int(level_match.group(1))
-
-    return GitHubStats(
-        username=profile.get("login", username),
-        publicRepos=profile.get("public_repos", 0),
-        followers=profile.get("followers", 0),
-        following=profile.get("following", 0),
-        totalStars=total_stars,
-        contributionCalendar=calendar,
-    )
+    try:
+        data = await fetch_github_stats(username)
+    except StatsNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except StatsUnavailableError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return GitHubStats(**data)
