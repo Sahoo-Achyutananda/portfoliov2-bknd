@@ -34,31 +34,59 @@ def _describe_cards(cards: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def _filter_cards(cards: list[dict], query: str | None) -> list[dict]:
+    """Narrow down to cards whose title mentions `query`. Falls back to the full
+    list if nothing matches, so a slightly-off query doesn't return an empty result."""
+    if not query:
+        return cards
+    q = query.lower()
+    matched = [c for c in cards if q in c["title"].lower()]
+    return matched or cards
+
+
 @tool(response_format="content_and_artifact")
-def get_projects() -> tuple[str, list[dict]]:
-    """Get the list of software projects: title, tech stack, description, and links."""
-    cards = projects_to_cards()
+def get_projects(query: str | None = None) -> tuple[str, list[dict]]:
+    """Get software projects: title, tech stack, description, and links.
+
+    If the visitor asks about a SPECIFIC project by name (e.g. "tell me about mygit"),
+    pass that name as `query` so only the matching project is returned instead of the
+    whole list. Leave `query` unset for general "what projects have you built" questions.
+    """
+    cards = _filter_cards(projects_to_cards(), query)
     return _describe_cards(cards), cards
 
 
 @tool(response_format="content_and_artifact")
-def get_experience() -> tuple[str, list[dict]]:
-    """Get work experience and internship history: role, duration, location, and highlights."""
-    cards = experience_to_cards()
+def get_experience(query: str | None = None) -> tuple[str, list[dict]]:
+    """Get work experience and internship history: role, duration, location, and highlights.
+
+    If the visitor asks about a SPECIFIC role/company by name, pass it as `query` so only
+    the matching entry is returned instead of the whole list. Leave `query` unset for
+    general "what's your work experience" questions.
+    """
+    cards = _filter_cards(experience_to_cards(), query)
     return _describe_cards(cards), cards
 
 
 @tool(response_format="content_and_artifact")
-def get_certificates() -> tuple[str, list[dict]]:
-    """Get the list of certificates and certifications earned."""
-    cards = certificates_to_cards()
+def get_certificates(query: str | None = None) -> tuple[str, list[dict]]:
+    """Get certificates and certifications earned.
+
+    If the visitor asks about a SPECIFIC certificate by name, pass it as `query` so only
+    the matching one is returned instead of the whole list.
+    """
+    cards = _filter_cards(certificates_to_cards(), query)
     return _describe_cards(cards), cards
 
 
 @tool(response_format="content_and_artifact")
-def get_awards() -> tuple[str, list[dict]]:
-    """Get awards and achievements: competitive exam ranks, awards, DSA problem counts, etc."""
-    cards = awards_to_cards()
+def get_awards(query: str | None = None) -> tuple[str, list[dict]]:
+    """Get awards and achievements: competitive exam ranks, awards, DSA problem counts, etc.
+
+    If the visitor asks about a SPECIFIC award by name, pass it as `query` so only the
+    matching one is returned instead of the whole list.
+    """
+    cards = _filter_cards(awards_to_cards(), query)
     return _describe_cards(cards), cards
 
 
