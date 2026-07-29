@@ -6,6 +6,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from data import certificates_to_cards, experience_to_cards, projects_to_cards
+
 app = FastAPI()
 
 app.add_middleware(
@@ -21,8 +23,18 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class ChatCard(BaseModel):
+    title: str
+    subtitle: str | None = None
+    description: str | None = None
+    link: str | None = None
+    linkLabel: str | None = None
+    image: str | None = None
+
+
 class ChatResponse(BaseModel):
     reply: str
+    cards: list[ChatCard] | None = None
 
 
 @app.get("/health")
@@ -32,6 +44,27 @@ def health():
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(payload: ChatRequest):
+    # Keyword-based stand-in until the real LangGraph agent exists (see
+    # README.md "Implementation Order"). Same card builders in data.py will
+    # back the agent's tools later, so this isn't throwaway.
+    message_lower = payload.message.lower()
+
+    if "certificate" in message_lower or "certification" in message_lower:
+        return ChatResponse(
+            reply="Here are some of my certificates:",
+            cards=certificates_to_cards(),
+        )
+    if "experience" in message_lower or "intern" in message_lower or "work" in message_lower:
+        return ChatResponse(
+            reply="Here's my work experience:",
+            cards=experience_to_cards(),
+        )
+    if "project" in message_lower:
+        return ChatResponse(
+            reply="Here are some of my projects:",
+            cards=projects_to_cards(),
+        )
+
     return ChatResponse(
         reply=f'This is a dummy response. You asked: "{payload.message}"'
     )
