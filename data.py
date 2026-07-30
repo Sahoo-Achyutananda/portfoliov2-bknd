@@ -23,7 +23,15 @@ PROFILE = {
     "email": "sahoo.official.work@gmail.com",
     "linkedin": "https://www.linkedin.com/in/achyutananda-sahoo",
     "website": "https://iamsahoo.netlify.app",
+    "socials": {
+        "github": "https://github.com/Sahoo-Achyutananda",
+        "linkedin": "https://www.linkedin.com/in/achyutananda-sahoo",
+        "leetcode": "https://leetcode.com/u/Achyutananda_Sahoo/",
+        "geeksforgeeks": "https://www.geeksforgeeks.org/user/achu23022002/",
+        "email": "sahoo.official.work@gmail.com",
+    },
     "location": "Kendujhar, Odisha, India",
+    "hobbies": "Painting and graphic design",
     "currentStatus": "Pursuing an M.Tech in Computer Science and Information Security (CSIS) at IIIT-Hyderabad",
     "mostRecentRole": "Technology Program Intern at Wells Fargo International, Hyderabad (May 2026 - Jul 2026)",
     "education": [
@@ -204,6 +212,15 @@ AWARDS = [
     {"title": "800+ DSA Problems", "description": "Solved across LeetCode & GeeksforGeeks"},
 ]
 
+PAINTINGS = [
+    {"src": "/paintings/oldman.jpg", "title": "Old Man"},
+    {"src": "/paintings/tamasha.jpg", "title": "Agar Tum SAaaathh Hoo .. "},
+    {"src": "/paintings/captain.jpg", "title": "Oh Captain My Captain"},
+    {"src": "/paintings/john.png", "title": "Babayaga"},
+    {"src": "/paintings/kiara.png", "title": "Kaira nahi, it's Kiara"},
+    {"src": "/paintings/infinity.jpg", "title": "Mudhal Nee Mudivum Nee"},
+]
+
 RESUME = {
     "title": "Resume.pdf",
     "description": "View or download my full resume.",
@@ -274,6 +291,20 @@ def awards_to_cards() -> list[dict]:
             "image": None,
         }
         for a in AWARDS
+    ]
+
+
+def paintings_to_cards() -> list[dict]:
+    return [
+        {
+            "title": p["title"],
+            "subtitle": None,
+            "description": None,
+            "link": None,
+            "linkLabel": None,
+            "image": p["src"],
+        }
+        for p in PAINTINGS
     ]
 
 

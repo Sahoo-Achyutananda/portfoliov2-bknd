@@ -9,7 +9,14 @@ load_dotenv()
 from agent import agent
 from stats import StatsNotFoundError, StatsUnavailableError, fetch_github_stats, fetch_leetcode_stats
 
-CARD_TOOL_NAMES = {"get_projects", "get_experience", "get_certificates", "get_awards", "get_resume"}
+CARD_TOOL_NAMES = {
+    "get_projects",
+    "get_experience",
+    "get_certificates",
+    "get_awards",
+    "get_paintings",
+    "get_resume",
+}
 
 app = FastAPI()
 

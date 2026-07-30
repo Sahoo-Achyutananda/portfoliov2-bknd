@@ -7,6 +7,7 @@ from data import (
     certificates_to_cards,
     experience_to_cards,
     get_profile,
+    paintings_to_cards,
     projects_to_cards,
     resume_to_cards,
 )
@@ -103,6 +104,18 @@ def get_awards(query: str | None = None) -> tuple[str, list[dict]]:
 
 
 @tool(response_format="content_and_artifact")
+def get_paintings(query: str | None = None) -> tuple[str, list[dict]]:
+    """Get paintings - painting is one of my hobbies alongside graphic design.
+
+    Use this whenever a visitor asks about hobbies, art, painting, or what I do outside of
+    software (in addition to mentioning graphic design from get_profile_info). If asked about
+    a SPECIFIC painting by name, pass it as `query` so only the matching one is returned.
+    """
+    cards = _filter_cards(paintings_to_cards(), query)
+    return _describe_cards(cards), cards
+
+
+@tool(response_format="content_and_artifact")
 def get_resume() -> tuple[str, list[dict]]:
     """Get a link to view or download the resume (Resume.pdf).
 
@@ -114,7 +127,14 @@ def get_resume() -> tuple[str, list[dict]]:
 
 @tool
 def get_profile_info() -> dict:
-    """Get personal profile info: name, age, contact details, current status, education, and skills."""
+    """Get personal profile info: name, age, contact details, current status, education, skills,
+    and social/coding profiles (GitHub, LinkedIn, LeetCode, GeeksforGeeks, email), plus hobbies.
+
+    Use this whenever a visitor asks for a specific social or coding profile link (e.g. "what's
+    your GitHub", "do you have LeetCode", "how do I add you on LinkedIn"), or asks about hobbies
+    or interests outside of work (mention painting and graphic design, and call get_paintings too
+    if they want to actually see the paintings).
+    """
     return get_profile()
 
 
@@ -141,6 +161,7 @@ TOOLS = [
     get_experience,
     get_certificates,
     get_awards,
+    get_paintings,
     get_resume,
     get_profile_info,
     get_leetcode_stats,
