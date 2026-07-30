@@ -9,7 +9,7 @@ load_dotenv()
 from agent import agent
 from stats import StatsNotFoundError, StatsUnavailableError, fetch_github_stats, fetch_leetcode_stats
 
-CARD_TOOL_NAMES = {"get_projects", "get_experience", "get_certificates", "get_awards"}
+CARD_TOOL_NAMES = {"get_projects", "get_experience", "get_certificates", "get_awards", "get_resume"}
 
 app = FastAPI()
 
@@ -62,7 +62,7 @@ def _extract_text(content) -> str:
 @app.post("/chat", response_model=ChatResponse)
 async def chat(payload: ChatRequest):
     result = await agent.ainvoke({"messages": [{"role": "user", "content": payload.message}]})
-    print("-------------",result)
+    # print("-------------",result)
     messages = result["messages"]
 
     reply = _extract_text(messages[-1].content)

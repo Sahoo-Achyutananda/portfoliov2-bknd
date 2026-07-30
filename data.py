@@ -31,6 +31,7 @@ PROFILE = {
             "institution": "International Institute of Information Technology, Hyderabad (IIIT-H)",
             "degree": "M.Tech, Computer Science and Information Security",
             "period": "2025 - present",
+            "honors": "CGPA 8.76/10"
         },
         {
             "institution": "Saveetha School of Engineering, Chennai",
@@ -203,6 +204,13 @@ AWARDS = [
     {"title": "800+ DSA Problems", "description": "Solved across LeetCode & GeeksforGeeks"},
 ]
 
+RESUME = {
+    "title": "Resume.pdf",
+    "description": "View or download my full resume.",
+    "link": "/RESUME_ACHYUTANANDA_SAHOO.pdf",
+    "linkLabel": "Open Resume",
+}
+
 
 def projects_to_cards() -> list[dict]:
     cards = []
@@ -267,3 +275,7 @@ def awards_to_cards() -> list[dict]:
         }
         for a in AWARDS
     ]
+
+
+def resume_to_cards() -> list[dict]:
+    return [{**RESUME, "subtitle": None, "image": None}]

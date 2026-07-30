@@ -8,6 +8,7 @@ from data import (
     experience_to_cards,
     get_profile,
     projects_to_cards,
+    resume_to_cards,
 )
 from stats import (
     StatsNotFoundError,
@@ -101,6 +102,16 @@ def get_awards(query: str | None = None) -> tuple[str, list[dict]]:
     return _describe_cards(cards), cards
 
 
+@tool(response_format="content_and_artifact")
+def get_resume() -> tuple[str, list[dict]]:
+    """Get a link to view or download the resume (Resume.pdf).
+
+    Use this whenever the visitor asks for a resume, CV, or asks to download/see one.
+    """
+    cards = resume_to_cards()
+    return _describe_cards(cards), cards
+
+
 @tool
 def get_profile_info() -> dict:
     """Get personal profile info: name, age, contact details, current status, education, and skills."""
@@ -130,6 +141,7 @@ TOOLS = [
     get_experience,
     get_certificates,
     get_awards,
+    get_resume,
     get_profile_info,
     get_leetcode_stats,
     get_github_stats,
