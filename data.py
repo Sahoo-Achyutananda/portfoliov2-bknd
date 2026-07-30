@@ -135,6 +135,7 @@ PROJECTS = [
 EXPERIENCE = [
     {
         "title": "Technology Program Intern - Wells Fargo International",
+        "category": "Internships",
         "duration": "May 2026 - Jul 2026",
         "location": "Hyderabad, India",
         "highlights": [
@@ -144,6 +145,7 @@ EXPERIENCE = [
     },
     {
         "title": "Software Engineer Intern - Ciranta IT Services (formerly Aspirant Labs)",
+        "category": "Internships",
         "duration": "Oct 2023 - Apr 2024",
         "location": "Chennai, India",
         "highlights": [
@@ -155,8 +157,9 @@ EXPERIENCE = [
     },
     {
         "title": "Graphic Designer - Lose Kilo",
+        "category": "Freelance",
         "duration": "Sep 2024 - Nov 2024",
-        "location": None,
+        "location": "Remote",
         "highlights": [
             "Developed workout and nutrition guides",
             "Designed branding templates for digital services",
@@ -164,8 +167,9 @@ EXPERIENCE = [
     },
     {
         "title": "Graphic Designer - Lose Kilo",
+        "category": "Freelance",
         "duration": "Mar 2023 - May 2023",
-        "location": None,
+        "location": "Remote",
         "highlights": [
             "Designed logo, ad creatives, and digital manuals",
             "Worked remotely with a fitness startup",
@@ -173,8 +177,9 @@ EXPERIENCE = [
     },
     {
         "title": "Graphic Designer - Being Assured",
+        "category": "Freelance",
         "duration": "Aug 2022 - Jan 2023",
-        "location": None,
+        "location": "Remote",
         "highlights": [
             "Designed social media posts and ad creatives",
             "Created landing page designs and performed market research",
@@ -220,7 +225,9 @@ def projects_to_cards() -> list[dict]:
 def experience_to_cards() -> list[dict]:
     cards = []
     for e in EXPERIENCE:
-        subtitle = e["duration"] + (f" · {e['location']}" if e["location"] else "")
+        subtitle = f"{e['category']} · {e['duration']}"
+        if e["location"]:
+            subtitle += f" · {e['location']}"
         cards.append(
             {
                 "title": e["title"],

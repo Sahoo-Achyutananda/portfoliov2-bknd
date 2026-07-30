@@ -76,6 +76,15 @@ async def chat(payload: ChatRequest):
     return ChatResponse(reply=reply, cards=cards)
 
 
+class ContestHistoryEntry(BaseModel):
+    title: str
+    rating: float
+    ranking: int
+    problemsSolved: int
+    totalProblems: int
+    trendDirection: str
+
+
 class LeetCodeStats(BaseModel):
     username: str
     totalSolved: int
@@ -88,6 +97,11 @@ class LeetCodeStats(BaseModel):
     totalActiveDays: int
     streak: int
     submissionCalendar: dict[str, int]
+    contestRating: float | None
+    contestAttended: int
+    contestGlobalRanking: int | None
+    contestTopPercentage: float | None
+    contestHistory: list[ContestHistoryEntry]
 
 
 @app.get("/leetcode/stats", response_model=LeetCodeStats)

@@ -46,6 +46,25 @@ query userStats($username: String!) {
       submissionCalendar
     }
   }
+  userContestRanking(username: $username) {
+    attendedContestsCount
+    rating
+    globalRanking
+    totalParticipants
+    topPercentage
+  }
+  userContestRankingHistory(username: $username) {
+    attended
+    trendDirection
+    problemsSolved
+    totalProblems
+    rating
+    ranking
+    contest {
+      title
+      startTime
+    }
+  }
 }
 """
 
@@ -81,6 +100,21 @@ async def fetch_leetcode_stats(username: str = "achyutananda_sahoo") -> dict:
     calendar_raw = matched_user["userCalendar"]["submissionCalendar"] or "{}"
     submission_calendar = json.loads(calendar_raw)
 
+    contest_ranking = payload.get("data", {}).get("userContestRanking") or {}
+    contest_history_raw = payload.get("data", {}).get("userContestRankingHistory") or []
+    attended = [c for c in contest_history_raw if c.get("attended")]
+    recent_contests = [
+        {
+            "title": c["contest"]["title"],
+            "rating": round(c["rating"], 1),
+            "ranking": c["ranking"],
+            "problemsSolved": c["problemsSolved"],
+            "totalProblems": c["totalProblems"],
+            "trendDirection": c["trendDirection"],
+        }
+        for c in list(reversed(attended))[:10]
+    ]
+
     return {
         "username": matched_user["username"],
         "totalSolved": counts.get("All", 0),
@@ -93,6 +127,13 @@ async def fetch_leetcode_stats(username: str = "achyutananda_sahoo") -> dict:
         "totalActiveDays": matched_user["userCalendar"]["totalActiveDays"],
         "streak": matched_user["userCalendar"]["streak"],
         "submissionCalendar": submission_calendar,
+        "contestRating": round(contest_ranking["rating"], 1)
+        if contest_ranking.get("rating") is not None
+        else None,
+        "contestAttended": contest_ranking.get("attendedContestsCount", 0),
+        "contestGlobalRanking": contest_ranking.get("globalRanking"),
+        "contestTopPercentage": contest_ranking.get("topPercentage"),
+        "contestHistory": recent_contests,
     }
 
 

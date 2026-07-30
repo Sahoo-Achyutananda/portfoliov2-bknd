@@ -35,12 +35,21 @@ def _describe_cards(cards: list[dict]) -> str:
 
 
 def _filter_cards(cards: list[dict], query: str | None) -> list[dict]:
-    """Narrow down to cards whose title mentions `query`. Falls back to the full
-    list if nothing matches, so a slightly-off query doesn't return an empty result."""
+    """Narrow down to cards matching `query`, checked against title, subtitle, and
+    description (not just title) so things like a category tucked into the subtitle —
+    e.g. "Freelance" — are actually searchable. Falls back to the full list if nothing
+    matches, so a slightly-off query doesn't return an empty result."""
     if not query:
         return cards
     q = query.lower()
-    matched = [c for c in cards if q in c["title"].lower()]
+
+    def matches(c: dict) -> bool:
+        haystack = " ".join(
+            str(c.get(field) or "") for field in ("title", "subtitle", "description")
+        ).lower()
+        return q in haystack
+
+    matched = [c for c in cards if matches(c)]
     return matched or cards
 
 
@@ -58,11 +67,13 @@ def get_projects(query: str | None = None) -> tuple[str, list[dict]]:
 
 @tool(response_format="content_and_artifact")
 def get_experience(query: str | None = None) -> tuple[str, list[dict]]:
-    """Get work experience and internship history: role, duration, location, and highlights.
+    """Get work experience and internship history: category (Internships/Freelance), role,
+    duration, location, and highlights.
 
-    If the visitor asks about a SPECIFIC role/company by name, pass it as `query` so only
-    the matching entry is returned instead of the whole list. Leave `query` unset for
-    general "what's your work experience" questions.
+    If the visitor asks about a SPECIFIC role/company (e.g. "Wells Fargo") or a CATEGORY
+    of work (e.g. "freelance work", "graphic design", "internships"), pass that as `query`
+    so only the matching entries are returned instead of the whole list. Leave `query`
+    unset for general "what's your work experience" questions.
     """
     cards = _filter_cards(experience_to_cards(), query)
     return _describe_cards(cards), cards
