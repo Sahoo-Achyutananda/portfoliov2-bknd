@@ -39,7 +39,7 @@ PROFILE = {
             "institution": "International Institute of Information Technology, Hyderabad (IIIT-H)",
             "degree": "M.Tech, Computer Science and Information Security",
             "period": "2025 - present",
-            "honors": "CGPA 8.76/10"
+            "honors": "CGPA 8.76/10 (Combining 1st and 2nd semester)"
         },
         {
             "institution": "Saveetha School of Engineering, Chennai",
@@ -53,7 +53,7 @@ PROFILE = {
         "mlAi": [
             "Google ADK",
         ],
-        "backend": ["Node.js", "PostgreSQL", "pgvector", "FastAPI"],
+        "backend": ["Node.js", "PostgreSQL", "FastAPI"],
         "tools": ["Git", "GitHub", "VS Code", "Postman"],
     },
     "summary": (
@@ -73,15 +73,13 @@ def get_profile() -> dict:
 
 PROJECTS = [
     {
-        "title": "mygit - Git Implementation from Scratch with RAG",
-        "tech": "TypeScript, Node.js, PostgreSQL, pgvector, OpenAI API",
+        "title": "mygit",
+        "tech": "TypeScript, Node.js, PostgreSQL,",
         "description": (
             "Implementing Git's core object model (blob/tree/commit) with SHA-1 "
             "content-addressed storage and zlib compression, including a staging area, refs, "
             "and 7 core commands. Building push/pull/clone over a custom JSON/HTTP protocol "
-            "with compare-and-swap for non-fast-forward rejection. Planning a RAG pipeline to "
-            "embed code blobs on push and answer natural-language codebase questions via "
-            "pgvector similarity search and GPT-4o synthesis."
+            "with compare-and-swap for non-fast-forward rejection. Also implemented diff (using Myer's diff algorithm) and merge (3 way merge algorithm)"
         ),
         "github": "https://github.com/Sahoo-Achyutananda/mygit",
         "demo": None,
@@ -110,12 +108,20 @@ PROJECTS = [
         "thumbnail": None,
     },
     {
-        "title": "SORT IT OUT",
+        "title": "P2P File Transfer System",
+        "tech": "C++, STL",
+        "description": "A BitTorrent-style peer-to-peer file sharing system with a central tracker for coordination and direct peer-to-peer piece transfer. Supports multi-tracker fault tolerance via Primary-Secondary replication with automatic failover, SHA1-verified chunked file transfer, and concurrent downloads via a custom thread pool. Built with raw POSIX sockets and pthreads for full control over the networking and concurrency layers.",
+        "github": None,
+        "demo": None,
+        "thumbnail": None,
+    },
+    {
+        "title": "Sort It Out - A Sorting Visualizer",
         "tech": "React, Tailwind CSS, Vite",
         "description": "A React + Tailwind sorting visualizer with a Race Mode (algorithms compete in real-time) and Play Mode.",
         "github": "https://github.com/Sahoo-Achyutananda/sort_it_out_v4",
         "demo": "https://sort-it-out-v4.netlify.app/",
-        "thumbnail": "/projects/sortv4.png",
+        "thumbnail": None,
     },
     {
         "title": "Snake Game (C++)",
@@ -123,7 +129,7 @@ PROJECTS = [
         "description": "A console-based snake game written in C++, no graphics, just terminal fun.",
         "github": "https://github.com/yourusername/snake-game-cpp",
         "demo": None,
-        "thumbnail": "/projects/snake.png",
+        "thumbnail": None,
     },
     {
         "title": "Customer Churn Prediction in Banking Sector",
