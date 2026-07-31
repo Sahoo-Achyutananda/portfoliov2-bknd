@@ -6,6 +6,7 @@ one implementation.
 """
 
 import json
+import os
 import re
 
 import httpx
@@ -137,11 +138,72 @@ async def fetch_leetcode_stats(username: str = "achyutananda_sahoo") -> dict:
     }
 
 
-GITHUB_HEADERS = {"User-Agent": "Mozilla/5.0"}
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+
+# Unauthenticated requests to api.github.com are capped at 60/hour *per IP* - on a
+# host like Render that IP is shared across many other apps, so that cap is trivial
+# to exhaust in production even though it never shows up in local dev. A token (no
+# scopes needed for public data) raises that to 5000/hour.
+GITHUB_HEADERS = {"User-Agent": "portfolio-backend"}
+if GITHUB_TOKEN:
+    GITHUB_HEADERS["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+
+GITHUB_GRAPHQL_URL = "https://api.github.com/graphql"
+
+GITHUB_CONTRIBUTIONS_QUERY = """
+query($login: String!) {
+  user(login: $login) {
+    contributionsCollection {
+      contributionCalendar {
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+          }
+        }
+      }
+    }
+  }
+}
+"""
 
 CONTRIB_DAY_RE = re.compile(r'<td\b[^>]*\bclass="ContributionCalendar-day"[^>]*>')
 DATE_RE = re.compile(r'data-date="([\d-]+)"')
 LEVEL_RE = re.compile(r'data-level="(\d+)"')
+
+
+async def _fetch_contribution_calendar_graphql(
+    client: httpx.AsyncClient, username: str
+) -> dict[str, int]:
+    """The official, authenticated way to get contribution data - used whenever a
+    token is available."""
+    res = await client.post(
+        GITHUB_GRAPHQL_URL,
+        json={"query": GITHUB_CONTRIBUTIONS_QUERY, "variables": {"login": username}},
+    )
+    res.raise_for_status()
+    user = res.json().get("data", {}).get("user")
+    if user is None:
+        return {}
+    weeks = user["contributionsCollection"]["contributionCalendar"]["weeks"]
+    return {
+        day["date"]: day["contributionCount"]
+        for week in weeks
+        for day in week["contributionDays"]
+    }
+
+
+def _parse_contribution_calendar_html(html: str) -> dict[str, int]:
+    """Fallback for when no GITHUB_TOKEN is set: scrapes the same undocumented HTML
+    endpoint this used to always rely on. Fragile (unofficial, easy to get blocked
+    from a datacenter IP) - only still here so local dev works without a token."""
+    calendar: dict[str, int] = {}
+    for td in CONTRIB_DAY_RE.findall(html):
+        date_match = DATE_RE.search(td)
+        level_match = LEVEL_RE.search(td)
+        if date_match and level_match:
+            calendar[date_match.group(1)] = int(level_match.group(1))
+    return calendar
 
 
 async def fetch_github_stats(username: str = "Sahoo-Achyutananda") -> dict:
@@ -152,15 +214,19 @@ async def fetch_github_stats(username: str = "Sahoo-Achyutananda") -> dict:
                 f"https://api.github.com/users/{username}/repos",
                 params={"per_page": 100},
             )
-            contrib_res = await client.get(
-                f"https://github.com/users/{username}/contributions"
-            )
+            if GITHUB_TOKEN:
+                calendar = await _fetch_contribution_calendar_graphql(client, username)
+            else:
+                contrib_res = await client.get(f"https://github.com/users/{username}/contributions")
+                if not contrib_res.is_success:
+                    raise StatsUnavailableError("Failed to reach GitHub")
+                calendar = _parse_contribution_calendar_html(contrib_res.text)
         except httpx.HTTPError as exc:
             raise StatsUnavailableError("Failed to reach GitHub") from exc
 
     if profile_res.status_code == 404:
         raise StatsNotFoundError(f"GitHub user '{username}' not found")
-    if not profile_res.is_success or not repos_res.is_success or not contrib_res.is_success:
+    if not profile_res.is_success or not repos_res.is_success:
         raise StatsUnavailableError("Failed to reach GitHub")
 
     profile = profile_res.json()
@@ -168,13 +234,6 @@ async def fetch_github_stats(username: str = "Sahoo-Achyutananda") -> dict:
     total_stars = sum(
         repo.get("stargazers_count", 0) for repo in repos if isinstance(repo, dict)
     )
-
-    calendar: dict[str, int] = {}
-    for td in CONTRIB_DAY_RE.findall(contrib_res.text):
-        date_match = DATE_RE.search(td)
-        level_match = LEVEL_RE.search(td)
-        if date_match and level_match:
-            calendar[date_match.group(1)] = int(level_match.group(1))
 
     return {
         "username": profile.get("login", username),
