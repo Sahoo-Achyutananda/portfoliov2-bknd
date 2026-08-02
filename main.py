@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import ToolMessage
 from pydantic import BaseModel
@@ -7,6 +7,7 @@ from pydantic import BaseModel
 load_dotenv()
 
 from agent import agent
+from mailer import is_rate_limited, send_notification_email
 from stats import StatsNotFoundError, StatsUnavailableError, fetch_github_stats, fetch_leetcode_stats
 
 CARD_TOOL_NAMES = {
@@ -81,6 +82,34 @@ async def chat(payload: ChatRequest):
             break
 
     return ChatResponse(reply=reply, cards=cards)
+
+
+class MessageRequest(BaseModel):
+    message: str
+
+
+class MessageResponse(BaseModel):
+    ok: bool
+
+
+@app.post("/message", response_model=MessageResponse)
+def send_message(payload: MessageRequest, request: Request):
+    text = payload.message.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Message is empty")
+    if len(text) > 2000:
+        raise HTTPException(status_code=400, detail="Message is too long")
+
+    client_ip = request.client.host if request.client else "unknown"
+    if is_rate_limited(client_ip):
+        raise HTTPException(status_code=429, detail="Too many messages sent, try again later")
+
+    try:
+        send_notification_email(text)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Failed to send message") from exc
+
+    return MessageResponse(ok=True)
 
 
 class ContestHistoryEntry(BaseModel):
