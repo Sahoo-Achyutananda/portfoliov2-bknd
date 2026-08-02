@@ -33,7 +33,7 @@ PROFILE = {
     "location": "Kendujhar, Odisha, India",
     "hobbies": "Painting and graphic design",
     "currentStatus": "Pursuing an M.Tech in Computer Science and Information Security (CSIS) at IIIT-Hyderabad",
-    "mostRecentRole": "Technology Program Intern at Wells Fargo International, Hyderabad (May 2026 - Jul 2026)",
+    "mostRecentRole": "Technology Program Intern at Wells Fargo International, Hyderabad (May 2026 – Jul 2026)",
     "education": [
         {
             "institution": "International Institute of Information Technology, Hyderabad (IIIT-H)",
@@ -58,11 +58,8 @@ PROFILE = {
     },
     "summary": (
         "Software engineer pursuing an M.Tech in CSIS at IIIT-Hyderabad (GATE CS 2025 AIR "
-        "1814). Most recently built an autonomous agentic AI system at Wells Fargo using "
-        "Google ADK, LangChain, and LangGraph to digitize a manual banking workflow, cutting "
-        "turnaround time from hours to minutes. Also works across ML (FAISS, "
-        "sentence-transformers), backend (Python, TypeScript, PostgreSQL), and occasionally "
-        "freelances as a graphic designer."
+        "1814). Most recently built a generative AI system at Wells Fargo to digitize a manual banking workflow, cutting "
+        "turnaround time from hours to minutes."
     ),
 }
 
@@ -74,7 +71,7 @@ def get_profile() -> dict:
 PROJECTS = [
     {
         "title": "mygit",
-        "tech": "TypeScript, Node.js, PostgreSQL,",
+        "tech": "TypeScript, Node.js, PostgreSQL",
         "description": (
             "Implementing Git's core object model (blob/tree/commit) with SHA-1 "
             "content-addressed storage and zlib compression, including a staging area, refs, "
@@ -82,6 +79,14 @@ PROJECTS = [
             "with compare-and-swap for non-fast-forward rejection. Also implemented diff (using Myer's diff algorithm) and merge (3 way merge algorithm)"
         ),
         "github": "https://github.com/Sahoo-Achyutananda/mygit",
+        "demo": None,
+        "thumbnail": None,
+    },
+    {
+        "title": "P2P File Transfer System",
+        "tech": "C++, STL",
+        "description": "A BitTorrent-style peer-to-peer file sharing system with a central tracker for coordination and direct peer-to-peer piece transfer. Supports multi-tracker fault tolerance via Primary-Secondary replication with automatic failover, SHA1-verified chunked file transfer, and concurrent downloads via a custom thread pool. Built with raw POSIX sockets and pthreads for full control over the networking and concurrency layers.",
+        "github": None,
         "demo": None,
         "thumbnail": None,
     },
@@ -103,14 +108,6 @@ PROJECTS = [
         "title": "Mini POSIX Shell",
         "tech": "C++, STL",
         "description": "A terminal REPL supporting commands (cd, ls, echo, pinfo), I/O redirection, and pipelining.",
-        "github": None,
-        "demo": None,
-        "thumbnail": None,
-    },
-    {
-        "title": "P2P File Transfer System",
-        "tech": "C++, STL",
-        "description": "A BitTorrent-style peer-to-peer file sharing system with a central tracker for coordination and direct peer-to-peer piece transfer. Supports multi-tracker fault tolerance via Primary-Secondary replication with automatic failover, SHA1-verified chunked file transfer, and concurrent downloads via a custom thread pool. Built with raw POSIX sockets and pthreads for full control over the networking and concurrency layers.",
         "github": None,
         "demo": None,
         "thumbnail": None,
@@ -151,17 +148,17 @@ EXPERIENCE = [
     {
         "title": "Technology Program Intern - Wells Fargo International",
         "category": "Internships",
-        "duration": "May 2026 - Jul 2026",
+        "duration": "May 2026 – Jul 2026",
         "location": "Hyderabad, India",
         "highlights": [
-            "Built an autonomous Agentic AI system (Google ADK, LangChain, LangGraph) to digitize a manual banking inquiry workflow",
-            "Reduced turnaround time from 2-8 hours to 20 minutes",
+            "Built an autonomous generative AI system to digitize a manual banking inquiry workflow",
+            "Reduced turnaround time from 2+ hours to 20 minutes, optimized existing workflows by reducing total token consumption per llm call and updating system architecture",
         ],
     },
     {
         "title": "Software Engineer Intern - Ciranta IT Services (formerly Aspirant Labs)",
         "category": "Internships",
-        "duration": "Oct 2023 - Apr 2024",
+        "duration": "Oct 2023 – Apr 2024",
         "location": "Chennai, India",
         "highlights": [
             "Developed and customized Odoo ERP modules across HR, CRM, and marketing domains",
@@ -173,7 +170,7 @@ EXPERIENCE = [
     {
         "title": "Graphic Designer - Lose Kilo",
         "category": "Freelance",
-        "duration": "Sep 2024 - Nov 2024",
+        "duration": "Sep 2024 – Nov 2024",
         "location": "Remote",
         "highlights": [
             "Developed workout and nutrition guides",
@@ -183,7 +180,7 @@ EXPERIENCE = [
     {
         "title": "Graphic Designer - Lose Kilo",
         "category": "Freelance",
-        "duration": "Mar 2023 - May 2023",
+        "duration": "Mar 2023 – May 2023",
         "location": "Remote",
         "highlights": [
             "Designed logo, ad creatives, and digital manuals",
@@ -193,7 +190,7 @@ EXPERIENCE = [
     {
         "title": "Graphic Designer - Being Assured",
         "category": "Freelance",
-        "duration": "Aug 2022 - Jan 2023",
+        "duration": "Aug 2022 – Jan 2023",
         "location": "Remote",
         "highlights": [
             "Designed social media posts and ad creatives",
@@ -205,8 +202,8 @@ EXPERIENCE = [
 CERTIFICATES = [
     {"src": "/certs/Picture1.jpg", "title": "Udemy C++ Certification"},
     {"src": "/certs/Picture2.jpg", "title": "Udemy C++ DSA Certificate"},
-    {"src": "/certs/Picture4.png", "title": "Cisco - Python Essentials Certification"},
-    {"src": "/certs/Picture6.png", "title": "Rising STAR Award - Ciranta IT Services"},
+    {"src": "/certs/Picture4.png", "title": "Cisco – Python Essentials Certification"},
+    {"src": "/certs/Picture6.png", "title": "Rising STAR Award – Ciranta IT Services"},
     {"src": "/certs/Picture7.jpg", "title": "Third Year College Topper"},
     {"src": "/certs/Picture8.jpg", "title": "Second Year College Topper"},
 ]
