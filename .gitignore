@@ -3,3 +3,7 @@ __pycache__/
 .env
 venv/
 dist/
+.deepeval/
+.deepeval_telemetry.txt
+.pytest_cache/
+tests/query_bank/results.json
