@@ -5,6 +5,7 @@ from langchain_core.tools import tool
 from data import (
     awards_to_cards,
     certificates_to_cards,
+    education_to_cards,
     experience_to_cards,
     get_profile,
     paintings_to_cards,
@@ -78,6 +79,13 @@ def get_experience(query: str | None = None) -> tuple[str, list[dict]]:
     unset for general "what's your work experience" questions.
     """
     cards = _filter_cards(experience_to_cards(), query)
+    return _describe_cards(cards), cards
+
+
+@tool(response_format="content_and_artifact")
+def get_education() -> tuple[str, list[dict]]:
+    """Get education history: degree, institution, period, and honors for each."""
+    cards = education_to_cards()
     return _describe_cards(cards), cards
 
 
@@ -159,6 +167,7 @@ async def get_github_stats() -> dict:
 TOOLS = [
     get_projects,
     get_experience,
+    get_education,
     get_certificates,
     get_awards,
     get_paintings,

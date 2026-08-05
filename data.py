@@ -47,6 +47,28 @@ PROFILE = {
             "period": "2020 - 2024",
             "honors": "CGPA 9.44/10, 1st rank (2nd-4th yr), Best Outgoing Student 2024",
         },
+        {
+            "institution": "Rabindra Vidya Niketan, Keonjhar, Odisha",
+            "degree": "11th and 12th, CBSE (Science - PCMB)",
+            "period": "Apr 2017 - Jul 2019",
+            "honors": "Grade: 85.6%",
+        },
+        {
+            "institution": "Atmiya Vidyapeeth, Gandhidham, Gujarat",
+            "degree": "7th to 10th, CBSE",
+            "period": "May 2013 - Mar 2017",
+            "honors": "Grade: 10 CGPA",
+        },
+        {
+            "institution": "Mangadu Public School, Kovur, Tamil Nadu",
+            "degree": "5th and 6th, CBSE",
+            "period": "Mar 2011 - Mar 2013",
+        },
+        {
+            "institution": "St John's Matriculation Higher Secondary School, Chennai, Tamil Nadu",
+            "degree": "1st to 4th, State Board (Tamil Nadu)",
+            "period": "Mar 2007 - Mar 2011",
+        },
     ],
     "skills": {
         "languages": ["C/C++", "Python", "TypeScript", "JavaScript"],
@@ -280,6 +302,20 @@ def certificates_to_cards() -> list[dict]:
             "image": c["src"],
         }
         for c in CERTIFICATES
+    ]
+
+
+def education_to_cards() -> list[dict]:
+    return [
+        {
+            "title": e["degree"],
+            "subtitle": f"{e['institution']} · {e['period']}",
+            "description": e.get("honors"),
+            "link": None,
+            "linkLabel": None,
+            "image": None,
+        }
+        for e in PROFILE["education"]
     ]
 
 

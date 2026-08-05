@@ -13,6 +13,7 @@ from stats import StatsNotFoundError, StatsUnavailableError, fetch_github_stats,
 CARD_TOOL_NAMES = {
     "get_projects",
     "get_experience",
+    "get_education",
     "get_certificates",
     "get_awards",
     "get_paintings",
