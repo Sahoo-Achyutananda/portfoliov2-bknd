@@ -15,7 +15,6 @@ CARD_TOOL_NAMES = {
     "get_experience",
     "get_education",
     "get_certificates",
-    "get_awards",
     "get_paintings",
     "get_resume",
 }

@@ -3,7 +3,6 @@
 from langchain_core.tools import tool
 
 from data import (
-    awards_to_cards,
     certificates_to_cards,
     education_to_cards,
     experience_to_cards,
@@ -101,17 +100,6 @@ def get_certificates(query: str | None = None) -> tuple[str, list[dict]]:
 
 
 @tool(response_format="content_and_artifact")
-def get_awards(query: str | None = None) -> tuple[str, list[dict]]:
-    """Get awards and achievements: competitive exam ranks, awards, DSA problem counts, etc.
-
-    If the visitor asks about a SPECIFIC award by name, pass it as `query` so only the
-    matching one is returned instead of the whole list.
-    """
-    cards = _filter_cards(awards_to_cards(), query)
-    return _describe_cards(cards), cards
-
-
-@tool(response_format="content_and_artifact")
 def get_paintings(query: str | None = None) -> tuple[str, list[dict]]:
     """Get paintings - painting is one of my hobbies alongside graphic design.
 
@@ -169,7 +157,6 @@ TOOLS = [
     get_experience,
     get_education,
     get_certificates,
-    get_awards,
     get_paintings,
     get_resume,
     get_profile_info,

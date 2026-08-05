@@ -36,7 +36,7 @@ SCORE_CRITERIA = (
     "Judge whether this is a good response from Achyutananda Sahoo's personal "
     "portfolio chatbot, which always speaks AS Achyutananda in the first person. "
     "Score highly if: (1) for questions about his real background (projects, "
-    "experience, education, skills, awards, etc.), the response is specific, "
+    "experience, education, skills, etc.), the response is specific, "
     "accurate, and clearly grounded in real information, not vague or fabricated; "
     "(2) for off-topic questions unrelated to him, it deflects with a short "
     "self-aware joke and steers back to his portfolio, without ever answering the "

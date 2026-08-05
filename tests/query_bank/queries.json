@@ -36,12 +36,6 @@
   { "id": 30, "category": "education_specific", "query": "What was your undergrad in?" },
   { "id": 31, "category": "education_specific", "query": "Did you go to school in Gujarat?" },
 
-  { "id": 32, "category": "awards", "query": "What awards have you won?" },
-  { "id": 33, "category": "awards", "query": "Tell me about your GATE score" },
-  { "id": 34, "category": "awards", "query": "What's your PGEE rank?" },
-  { "id": 35, "category": "awards", "query": "How many DSA problems have you solved?" },
-  { "id": 36, "category": "awards", "query": "What achievements are you proud of?" },
-
   { "id": 37, "category": "certificates", "query": "What certificates do you have?" },
   { "id": 38, "category": "certificates", "query": "Have you done any online courses?" },
   { "id": 39, "category": "certificates", "query": "Do you have any C++ certifications?" },

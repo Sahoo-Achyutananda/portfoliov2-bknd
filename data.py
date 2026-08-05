@@ -230,13 +230,6 @@ CERTIFICATES = [
     {"src": "/certs/Picture8.jpg", "title": "Second Year College Topper"},
 ]
 
-AWARDS = [
-    {"title": "GATE CS 2025", "description": "AIR 1814 (98.94 percentile)"},
-    {"title": "PGEE", "description": "Rank 150"},
-    {"title": "Rising Star Award", "description": "Ciranta IT Services (2023)"},
-    {"title": "800+ DSA Problems", "description": "Solved across LeetCode & GeeksforGeeks"},
-]
-
 PAINTINGS = [
     {"src": "/paintings/oldman.jpg", "title": "Old Man"},
     {"src": "/paintings/tamasha.jpg", "title": "Agar Tum SAaaathh Hoo .. "},
@@ -316,20 +309,6 @@ def education_to_cards() -> list[dict]:
             "image": None,
         }
         for e in PROFILE["education"]
-    ]
-
-
-def awards_to_cards() -> list[dict]:
-    return [
-        {
-            "title": a["title"],
-            "subtitle": None,
-            "description": a["description"],
-            "link": None,
-            "linkLabel": None,
-            "image": None,
-        }
-        for a in AWARDS
     ]
 
 
