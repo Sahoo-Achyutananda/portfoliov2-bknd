@@ -46,6 +46,7 @@ class ChatCard(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     cards: list[ChatCard] | None = None
+    showQuickActions: bool = False
 
 
 @app.get("/health")
@@ -81,7 +82,13 @@ async def chat(payload: ChatRequest):
             cards = message.artifact
             break
 
-    return ChatResponse(reply=reply, cards=cards)
+    # If the agent answered without looking anything up, it's almost certainly an
+    # off-topic deflection or a generic/corporate-style answer (per its system prompt,
+    # real questions about me always go through a tool) - surface quick-action buttons
+    # so the visitor can tap their way to actual content instead of typing again.
+    used_tools = any(isinstance(message, ToolMessage) for message in messages)
+
+    return ChatResponse(reply=reply, cards=cards, showQuickActions=not used_tools)
 
 
 class MessageRequest(BaseModel):
